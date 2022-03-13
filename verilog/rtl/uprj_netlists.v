@@ -25,4 +25,11 @@
 `else
     `include "user_project_wrapper.v"
     `include "user_proj_example.v"
+    `include "cells_controller.v" 
+    `include "memory_controller.v"  
+    `include "spi_mod.v"
+    `include "sync_reg.v"
+    `include "system_controller.v"
+    `include "top.v"
+    `include "braille_driver_cotroller.v"
 `endif
