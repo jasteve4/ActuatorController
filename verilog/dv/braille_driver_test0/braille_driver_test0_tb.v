@@ -107,7 +107,7 @@ module braille_driver_test0_tb;
   	endtask
 
 	initial begin
-		$dumpfile("araille_driver_test0.vcd");
+		$dumpfile("baraille_driver_test0.vcd");
 		$dumpvars(0, braille_driver_test0_tb);
 
 		// Repeat cycles of 1000 clock edges as needed to complete testbench
