@@ -1,5 +1,10 @@
 # Caravel user project includes
 -v $(USER_PROJECT_VERILOG)/rtl/user_project_wrapper.v	     
--v $(USER_PROJECT_VERILOG)/rtl/user_proj_example.v
-
+-v $(USER_PROJECT_VERILOG)/rtl/braille_driver_controller.v  
+-v $(USER_PROJECT_VERILOG)/rtl/cells_controller.v  
+-v $(USER_PROJECT_VERILOG)/rtl/memory_controller.v  
+-v $(USER_PROJECT_VERILOG)/rtl/spi_mod.v  
+-v $(USER_PROJECT_VERILOG)/rtl/sync_reg.v  
+-v $(USER_PROJECT_VERILOG)/rtl/system_controller.v  
+-v $(USER_PROJECT_VERILOG)/rtl/top.v
  

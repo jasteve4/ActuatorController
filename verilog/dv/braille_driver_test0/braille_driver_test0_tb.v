@@ -40,6 +40,10 @@ module braille_driver_test0_tb;
         reg  ss_n;
         wire miso;
 	reg [31:0] tmp_data;
+	wire [4:0] h_ROWS;
+	wire [1:0] h_COLS;
+	wire [9:0] h_dots;
+	wire [9:0] dots;
 
 	assign mprj_io[37] =	enable_n;     	
 	assign mprj_io[36] =	trigger_in_n; 	  
@@ -107,7 +111,7 @@ module braille_driver_test0_tb;
   	endtask
 
 	initial begin
-		$dumpfile("baraille_driver_test0.vcd");
+		$dumpfile("braille_driver_test0.vcd");
 		$dumpvars(0, braille_driver_test0_tb);
 
 		// Repeat cycles of 1000 clock edges as needed to complete testbench
@@ -258,7 +262,7 @@ module braille_driver_test0_tb;
   	task ccr_set;
     	begin
 		$display("Writing CCR0");
-      		write_ccr0(32'h00_00_00_08);
+      		write_ccr0(32'h00_00_00_04);
 		$display("Writing CCR1");
       		write_ccr1(32'h00_00_00_0f);
 		$display("Writing CCR2");
@@ -274,7 +278,7 @@ module braille_driver_test0_tb;
 	begin
 		address = 8'h02;
 		read_data(address,tmp);
-		if(16'h00_08 === tmp)
+		if(16'h00_04 === tmp)
 		begin
 			$display("CCR0 Low bit set PASSED");
 			$display("address:%h\tccr0_low:%h",address,tmp);
@@ -348,6 +352,40 @@ module braille_driver_test0_tb;
 	end
 	endtask
 
+  	task write_b_state;
+    	input [9:0] b_state;
+    	begin
+    		wait_n_clks(20);
+    		write_data(8'h00,{6'b0,b_state});
+    		wait_n_clks(20);
+    	end
+  	endtask
+
+  	task set_trigger_mode_no_wait;
+    	input past_state_bit;
+    	input inv_bit;
+    	integer j;
+    	reg [31:0] pass;
+    	begin
+      		@(posedge clock); 
+      		latch_data_n = 1'b1;
+      		trigger_in_n = 1'b1;
+      		wait_n_clks(20);
+      		spi_shift({2'b0,past_state_bit,inv_bit,4'h8,24'b0},pass);
+      		wait_n_clks(100);
+      		latch_data_n = 0;
+      		wait_n_clks(20);
+      		latch_data_n = 1;
+      		wait_n_clks(20);
+      		trigger_in_n = 1'b0;
+      		wait_n_clks(20);
+      		trigger_in_n = 1'b1;
+      		//@(negedge trigger_out_n);
+      		wait_n_clks(20);
+    	end
+  	endtask
+
+
 	initial begin
 		init_signals();
 		wait(core_to_tb === 1'b1);
@@ -356,6 +394,8 @@ module braille_driver_test0_tb;
 		wait_n_clks(50);
 		ccr_set();
 		check_ccr_set();
+  		write_b_state(10'b11_1111_1111);
+		set_trigger_mode_no_wait(1'b0,1'b0);
 		tb_to_core = 1'b1;
 		wait(core_to_tb === 1'b0);
 		tb_to_core = 1'b0;
@@ -442,5 +482,176 @@ module braille_driver_test0_tb;
 		.ser_rx(uart_tx)
 	);
 
+	hbrige_cells hbrige_drivers_ic(
+	  .rows(mprj_io[30:21]),
+	  .cols(mprj_io[20:17]),
+	  .ROWS(h_ROWS),
+	  .COLS(h_COLS)
+	);
+	braille_cell h_cell_ic(
+	  .cols(h_COLS),
+	  .rows(h_ROWS),
+	  .dots(h_dots)
+	);
+
+	braille_cell cell_ic(
+	  .cols(mprj_io[9:8]),
+	  .rows(mprj_io[14:10]),
+	  .dots(dots)
+	);
+	
+
+endmodule
+
+module hbrige(
+  output reg line,
+  input wire p,
+  input wire n
+);
+  always@(*)
+  begin
+    case({p,n})
+        2'b00: line = 1'b0;
+        2'b11: line = 1'b1;
+        2'b10: line = 1'bz;
+        2'b01: line = 1'bx;
+    endcase
+  end
+endmodule
+
+module hbrige_cells(
+  input wire [9:0] rows,
+  input wire [3:0] cols,
+  output wire [4:0] ROWS,
+  output wire [1:0] COLS
+);
+
+  wire [4:0] MEM [1:0];
+  genvar i;
+  genvar j;
+
+  for(i=0;i<2;i=i+1)
+  begin
+    hbrige brige_line(
+      .line (COLS[i]),
+      .p    (cols[2*i+1]),
+      .n    (cols[2*i])
+    );
+  end
+  for(j=0;j<5;j=j+1)
+  begin
+    hbrige brige_line(
+      .line (ROWS[j]),
+      .p    (rows[2*j+1]),
+      .n    (rows[2*j])
+    );
+  end
+
+  for(i=0;i<2;i=i+1)
+  begin
+    for(j=0;j<5;j=j+1)
+    begin
+      assign MEM[i][j] = ((ROWS[j] === 1'bz) || (COLS[i] === 1'bz)) ? 1'bz : ((ROWS[j] == 1'b1) && (COLS[i] == 1'b0)) ? 1'b1 : ((ROWS[j] == 1'b0) && (COLS[i] == 1'b1)) ? 1'b0 : 1'bx;
+    end
+  end
+
+endmodule
+
+
+module braille_cell(
+  input wire [1:0] cols,
+  input wire [4:0] rows,
+  output reg [9:0] dots
+);
+
+  always@(*)
+  begin
+    dots[0] = dots[0];
+    if((cols[0] === 1'b0) && (rows[0] === 1'b1))
+      dots[0] = 1'b1;
+    else if((cols[0] === 1'b1) && (rows[0] === 1'b0))
+      dots[0] = 1'b0;
+  end
+
+  always@(*)
+  begin
+    dots[1] = dots[1];
+    if((cols[0] === 1'b0) && (rows[1] === 1'b1))
+      dots[1] = 1'b1;
+    else if((cols[0] === 1'b1) && (rows[1] === 1'b0))
+      dots[1] = 1'b0;
+  end
+
+  always@(*)
+  begin
+    dots[2] = dots[2];
+    if((cols[0] === 1'b0) && (rows[2] === 1'b1))
+      dots[2] = 1'b1;
+    else if((cols[0] === 1'b1) && (rows[2] === 1'b0))
+      dots[2] = 1'b0;
+  end
+
+  always@(*)
+  begin
+    dots[3] = dots[3];
+    if((cols[0] === 1'b0) && (rows[3] === 1'b1))
+      dots[3] = 1'b1;
+    else if((cols[0] === 1'b1) && (rows[3] === 1'b0))
+      dots[3] = 1'b0;
+  end
+
+  always@(*)
+  begin
+    dots[4] = dots[4];
+    if((cols[0] === 1'b0) && (rows[4] === 1'b1))
+      dots[4] = 1'b1;
+    else if((cols[0] === 1'b1) && (rows[4] === 1'b0))
+      dots[4] = 1'b0;
+  end
+
+  always@(*)
+  begin
+    dots[5] = dots[5];
+    if((cols[1] === 1'b0) && (rows[0] === 1'b1))
+      dots[5] = 1'b1;
+    else if((cols[1] === 1'b1) && (rows[0] === 1'b0))
+      dots[5] = 1'b0;
+  end
+
+  always@(*)
+  begin
+    dots[6] = dots[6];
+    if((cols[1] === 1'b0) && (rows[1] === 1'b1))
+      dots[6] = 1'b1;
+    else if((cols[1] === 1'b1) && (rows[1] === 1'b0))
+      dots[6] = 1'b0;
+  end
+
+  always@(*)
+  begin
+    dots[7] = dots[7];
+    if((cols[1] === 1'b0) && (rows[2] === 1'b1))
+      dots[7] = 1'b1;
+    else if((cols[1] === 1'b1) && (rows[2] === 1'b0))
+      dots[7] = 1'b0;
+  end
+
+  always@(*)
+  begin
+    dots[8] = dots[8];
+    if((cols[1] === 1'b0) && (rows[3] === 1'b1))
+      dots[8] = 1'b1;
+    else if((cols[1] === 1'b1) && (rows[3] === 1'b0))
+      dots[8] = 1'b0;
+  end
+
+  always@(*)
+  begin
+    dots[9] = dots[9];
+    if((cols[1] === 1'b0) && (rows[4] === 1'b1))
+      dots[9] = 1'b1;
+    else if((cols[1] === 1'b1) && (rows[4] === 1'b0))
+      dots[9] = 1'b0;
+  end
 endmodule
 `default_nettype wire

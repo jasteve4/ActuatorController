@@ -74,6 +74,7 @@ module braille_driver_controller
     wire [1:0]   cols_enable;
     wire [9:0]   rows_hbrige;
     wire [3:0]   cols_hbrige;
+    reg [`MPRJ_IO_PADS-1:0] io_in_reg;
     wire         trigger_out_n;
     wire         trigger_in_n;
     wire         latch_data_n;
@@ -95,7 +96,12 @@ module braille_driver_controller
     begin : io_port_assignment
         assign io_out[i]     = (~la_oenb[i]) ? la_data_in[i]    : user_data_out[i];
 	assign io_oeb[i]     = (~la_oenb[i+38]) ? la_data_in[i+38] : user_data_oeb[i];
-	assign la_data_out[i] = (~la_oenb[i]) ? 1'b0 : io_in[i];
+	assign la_data_out[i] = (~la_oenb[i]) ? 1'b0 : io_in_reg[i];
+	//assign la_data_out[i] = (~la_oenb[i]) ? 1'b0 : io_in[i];
+	always@(posedge clk)
+	begin
+		io_in_reg[i] = io_in[i];
+	end
     end
     endgenerate
     // 15 16 18 19 21 23
@@ -128,12 +134,12 @@ module braille_driver_controller
 	rows_hbrige[2],	// 23
 	rows_hbrige[1],	// 22
 	rows_hbrige[0],	// 21
-	rows_hbrige[9],	// 20
-	cols_hbrige[3],	// 19
-	cols_hbrige[2],	// 18
-	cols_hbrige[1],	// 17
-	cols_hbrige[0],	// 16
-	trigger_out_n,	// 15
+	cols_hbrige[3],	// 20
+	cols_hbrige[2],	// 19
+	cols_hbrige[1],	// 18
+	cols_hbrige[0],	// 17
+	trigger_out_n,	// 16
+	1'b0,		// 15
 	rows[4],	// 14	user_control_enable_6
 	rows[3],	// 13	user_control_enable_5
 	rows[2],	// 12	user_control_enable_4
@@ -175,13 +181,13 @@ module braille_driver_controller
 	1'b0,		// 17	hbrige_0 	: output
 	1'b0,		// 16	hbrige_0 	: output
 	1'b0,		// 15   triger_out_n 	: output				
-	rows_enable[4],	// 14	user_control_enable_6
-	rows_enable[3],	// 13	user_control_enable_5
-	rows_enable[2],	// 12	user_control_enable_4
-	rows_enable[1],	// 11   user_control_enable_3
-	rows_enable[0],	// 10	flash2_io  / user_control_enable_2
-	cols_enable[1],	// 9	flash2_io  / user_control_enable_1
-	cols_enable[0],	// 8	flash2_csb / user_control_enable_0
+	~rows_enable[4],	// 14	user_control_enable_6
+	~rows_enable[3],	// 13	user_control_enable_5
+	~rows_enable[2],	// 12	user_control_enable_4
+	~rows_enable[1],	// 11   user_control_enable_3
+	~rows_enable[0],	// 10	flash2_io  / user_control_enable_2
+	~cols_enable[1],	// 9	flash2_io  / user_control_enable_1
+	~cols_enable[0],	// 8	flash2_csb / user_control_enable_0
 	1'b1,		// 7	irq
 	1'b1,		// 6	ser_tx
 	1'b1,		// 5	ser_rx
@@ -192,12 +198,12 @@ module braille_driver_controller
 	1'b0		// 0   	JTAG / CPU_TO_IO : output
 	};
 
-	assign enable_n     =	io_in[37]; 	
-	assign trigger_in_n =   io_in[36]; 	  
-	assign latch_data_n =   io_in[35];	
-	assign mosi 	    =   io_in[33];	
-	assign ss_n 	    =   io_in[32];	
-	assign sclk 	    =   io_in[31];	
+	assign enable_n     =	io_in_reg[37]; 	
+	assign trigger_in_n =   io_in_reg[36]; 	  
+	assign latch_data_n =   io_in_reg[35];	
+	assign mosi 	    =   io_in_reg[33];	
+	assign ss_n 	    =   io_in_reg[32];	
+	assign sclk 	    =   io_in_reg[31];	
     
 	top user_design (
 	  .clock		(clk		),
