@@ -35,7 +35,7 @@ set ::env(DESIGN_IS_CORE) 0
 set ::env(CLOCK_PORT) 	"user_clock2"
 set ::env(CLOCK_NET) 	"user_clock2"
 set ::env(CLOCK_NET) 	"clk"
-set ::env(CLOCK_PERIOD) "20"
+set ::env(CLOCK_PERIOD) "12.5"
 
 set ::env(FP_SIZING) absolute
 #set ::env(DIE_AREA) "0 0  1000 700"

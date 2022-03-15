@@ -39,9 +39,10 @@ set ::env(VERILOG_FILES) "\
 
 ## Clock configurations
 set ::env(CLOCK_PORT) "user_clock2"
+set ::env(CLOCK_NET)  "mprj.user_clock2"
 set ::env(CLOCK_NET) "mprj.clk"
 
-set ::env(CLOCK_PERIOD) "30"
+set ::env(CLOCK_PERIOD) "12.5"
 
 ## Internal Macros
 ### Macro PDN Connections
