@@ -1,4 +1,8 @@
 module top (
+`ifdef USE_POWER_PINS
+    inout vccd1,	// User area 1 1.8V supply
+    inout vssd1,	// User area 1 digital ground
+`endif
   input  wire         clock,
   input  wire         enable_n, 
   output wire [4:0]   rows,
@@ -42,12 +46,20 @@ module top (
 
   sync_n trigger_sync
   (
+`ifdef USE_POWER_PINS
+	    .vccd1		(vccd1		),	// User area 1 1.8V supply
+	    .vssd1		(vssd1		),	// User area 1 digital ground
+`endif
     .signal_n         (trigger_in_n    ), 
     .signal_sn        (trigger_in_sn   ),
     .clock            (clock           )
   );
   sync_n latch_sync
   (
+`ifdef USE_POWER_PINS
+	    .vccd1		(vccd1		),	// User area 1 1.8V supply
+	    .vssd1		(vssd1		),	// User area 1 digital ground
+`endif
     .signal_n         (latch_data_n    ), 
     .signal_sn        (latch_data_sn   ),
     .clock            (clock           )
@@ -55,6 +67,10 @@ module top (
 
   sync_n enable_sync
   (
+`ifdef USE_POWER_PINS
+	    .vccd1		(vccd1		),	// User area 1 1.8V supply
+	    .vssd1		(vssd1		),	// User area 1 digital ground
+`endif
     .signal_n         (enable_n       ), 
     .signal_sn        (enable_sn        ),
     .clock            (clock           )
@@ -62,6 +78,10 @@ module top (
 
   spi_mod spi_core
   (
+`ifdef USE_POWER_PINS
+	    .vccd1		(vccd1		),	// User area 1 1.8V supply
+	    .vssd1		(vssd1		),	// User area 1 digital ground
+`endif
     .clock            (clock           ),
     .enable_sn        (enable_sn       ),
     .sclk             (sclk            ),
@@ -78,6 +98,10 @@ module top (
 
   system_controller system_core
   (
+`ifdef USE_POWER_PINS
+	    .vccd1		(vccd1		),	// User area 1 1.8V supply
+	    .vssd1		(vssd1		),	// User area 1 digital ground
+`endif
     .clock            (clock           ),
     .enable_sn        (enable_sn       ),
     .update_done      (update_done     ),
@@ -102,6 +126,10 @@ module top (
 
   memory_controller mem_core
   (
+`ifdef USE_POWER_PINS
+	    .vccd1		(vccd1		),	// User area 1 1.8V supply
+	    .vssd1		(vssd1		),	// User area 1 digital ground
+`endif
     .clock            (clock           ),
     .memory_enable_n  (memory_enable_n ),
     .memory_write_n   (memory_write_n  ),
@@ -120,6 +148,10 @@ module top (
 
   cells_controller cell_core
   (
+`ifdef USE_POWER_PINS
+	    .vccd1		(vccd1		),	// User area 1 1.8V supply
+	    .vssd1		(vssd1		),	// User area 1 digital ground
+`endif
     .clock            (clock           ),
     .cells_state      (cell_state      ),
     .system_enable_n  (system_enable_n ),

@@ -1,5 +1,9 @@
 module memory_controller
 (
+`ifdef USE_POWER_PINS
+    inout vccd1,	// User area 1 1.8V supply
+    inout vssd1,	// User area 1 digital ground
+`endif
   input wire          clock,
   //input wire reset_sn,
   input wire          memory_enable_n,

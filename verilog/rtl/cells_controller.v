@@ -1,5 +1,9 @@
 module cells_controller
 (
+`ifdef USE_POWER_PINS
+    inout vccd1,	// User area 1 1.8V supply
+    inout vssd1,	// User area 1 digital ground
+`endif
   input wire clock,
   input wire [15:0] cells_state,
   input wire system_enable_n,

@@ -59,8 +59,9 @@ module spi_transfer_test_tb;
 	assign core_to_tb = mprj_io[0];
 
 
+	//always #12.5 clock <= (clock === 1'b0);
 	always #12.5 clock <= (clock === 1'b0);
-	always #56.5 spi_clock <= ~spi_clock;
+	always #100 spi_clock <= ~spi_clock;
 
 
   	assign sclk = ~ss_n & spi_clock;
@@ -74,9 +75,9 @@ module spi_transfer_test_tb;
 	task init_signals;
       	begin
 		tb_to_core 	= 1'b0;
-        	enable_n 	= 0;
-        	trigger_in_n	= 0;
-        	latch_data_n	= 0;
+        	enable_n 	= 1;
+        	trigger_in_n	= 1;
+        	latch_data_n	= 1;
         	mosi 		= 0;
         	ss_n		= 1;
 		wait_n_clks(50);

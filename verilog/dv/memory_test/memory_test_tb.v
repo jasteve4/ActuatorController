@@ -74,9 +74,9 @@ module memory_test_tb;
 	task init_signals;
       	begin
 		tb_to_core 	= 1'b0;
-        	enable_n 	= 0;
-        	trigger_in_n	= 0;
-        	latch_data_n	= 0;
+        	enable_n 	= 1;
+        	trigger_in_n	= 1;
+        	latch_data_n	= 1;
         	mosi 		= 0;
         	ss_n		= 1;
 		wait_n_clks(50);

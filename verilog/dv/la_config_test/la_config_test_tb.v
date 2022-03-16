@@ -87,12 +87,12 @@ module la_config_test_tb;
 
 	initial begin
 		tb_to_core 	= 1'b0;
-        	enable_n 	= 0;
-        	trigger_in_n	= 0;
-        	latch_data_n	= 0;
-        	sclk		= 0;
+        	enable_n 	= 1;
+        	trigger_in_n	= 1;
+        	latch_data_n	= 1;
         	mosi 		= 0;
-        	ss_n		= 0;
+        	ss_n		= 1;
+		wait_n_clks(50);
 		wait(core_to_tb === 1'b1);
 		$display("LA Test 1 started");
 		tb_to_core = 1'b1;

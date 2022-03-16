@@ -88,6 +88,18 @@ docker_run_verify=\
 		-e MCW_ROOT=$(MCW_ROOT) \
 		-u $$(id -u $$USER):$$(id -g $$USER) efabless/dv_setup:latest \
 		sh -c $(verify_command)
+docker_run_verify-sdf=\
+	docker run -v ${TARGET_PATH}:${TARGET_PATH} -v ${PDK_ROOT}:${PDK_ROOT} \
+		-v ${CARAVEL_ROOT}:${CARAVEL_ROOT} \
+		-e TARGET_PATH=${TARGET_PATH} -e PDK_ROOT=${PDK_ROOT} \
+		-e CARAVEL_ROOT=${CARAVEL_ROOT} \
+		-e TOOLS=/opt/riscv32i \
+		-e DESIGNS=$(TARGET_PATH) \
+		-e CORE_VERILOG_PATH=$(TARGET_PATH)/mgmt_core_wrapper/verilog \
+		-e GCC_PREFIX=riscv32-unknown-elf \
+		-e MCW_ROOT=$(MCW_ROOT) \
+		-u $$(id -u $$USER):$$(id -g $$USER) efabless/caravel_openlane:2021.11.23_01.42.34 \
+		sh -c $(verify_command)
 
 .PHONY: harden
 harden: $(blocks)
@@ -105,7 +117,7 @@ $(dv-targets-gl): verify-%-gl: $(dv_base_dependencies)
 
 $(dv-targets-gl-sdf): SIM=GL_SDF
 $(dv-targets-gl-sdf): verify-%-gl-sdf: $(dv_base_dependencies)
-	$(docker_run_verify)
+	$(docker_run_verify-sdk)
 
 clean-targets=$(blocks:%=clean-%)
 .PHONY: $(clean-targets)

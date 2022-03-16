@@ -44,6 +44,8 @@ module braille_driver_test0_tb;
 	wire [1:0] h_COLS;
 	wire [9:0] h_dots;
 	wire [9:0] dots;
+	reg [9:0] b_set_state;
+	wire trigger_out_n;
 
 	assign mprj_io[37] =	enable_n;     	
 	assign mprj_io[36] =	trigger_in_n; 	  
@@ -53,6 +55,7 @@ module braille_driver_test0_tb;
 	assign mprj_io[32] = 	ss_n; 	   	
 	assign mprj_io[31] = 	sclk; 	   	
 
+	assign trigger_out_n = mprj_io[16];
 	assign mprj_io[7] = 1'b0;
 	assign uart_tx = mprj_io[6];
 	assign mprj_io[5] = 1'b0;
@@ -78,9 +81,9 @@ module braille_driver_test0_tb;
 	task init_signals;
       	begin
 		tb_to_core 	= 1'b0;
-        	enable_n 	= 0;
-        	trigger_in_n	= 0;
-        	latch_data_n	= 0;
+        	enable_n 	= 1;
+        	trigger_in_n	= 1;
+        	latch_data_n	= 1;
         	mosi 		= 0;
         	ss_n		= 1;
 		wait_n_clks(50);
@@ -352,12 +355,50 @@ module braille_driver_test0_tb;
 	end
 	endtask
 
+  	task check_b_state;
+    	input [9:0] b_state;
+	reg [9:0] local_dots;
+	reg [9:0] local_h_dots;
+    	begin
+		local_dots = dots;
+		local_h_dots = h_dots;
+		if({b_state[9],b_state[7],b_state[8],b_state[3],b_state[7:5],b_state[2:0]} === dots)
+		begin
+			$display("b_state dot test: PASSED");
+			$display("b_state:\t%b",b_state);
+			$display("trans  :\t%b",{b_state[9],b_state[7],b_state[8],b_state[3],b_state[7:5],b_state[2:0]});
+			$display("dots   :\t%b",dots);
+		end
+		else
+		begin
+			$display("b_state set faild");
+			$display("b_state:\t%b",b_state);
+			$display("trans  :\t%b",{b_state[9],b_state[7],b_state[8],b_state[3],b_state[7:5],b_state[2:0]});
+			$display("dots   :\t%b",dots);
+		end
+		if({b_state[9],b_state[7],b_state[8],b_state[3],b_state[7:5],b_state[2:0]} === h_dots)
+		begin
+			$display("b_state dot test: PASSED");
+			$display("b_state:\t%b",b_state);
+			$display("trans  :\t%b",{b_state[9],b_state[7],b_state[8],b_state[3],b_state[7:5],b_state[2:0]});
+			$display("dots   :\t%b",h_dots);
+		end
+		else
+		begin
+			$display("b_state set faild");
+			$display("b_state:\t%b",b_state);
+			$display("trans  :\t%b",{b_state[9],b_state[7],b_state[8],b_state[3],b_state[7:5],b_state[2:0]});
+			$display("dots   :\t%b",h_dots);
+		end
+	end
+	endtask
+
   	task write_b_state;
     	input [9:0] b_state;
     	begin
     		wait_n_clks(20);
     		write_data(8'h00,{6'b0,b_state});
-    		wait_n_clks(20);
+    		wait_n_clks(100);
     	end
   	endtask
 
@@ -385,6 +426,33 @@ module braille_driver_test0_tb;
     	end
   	endtask
 
+  	task advance_b_state_and_check;
+	input [9:0] b_state;
+    	input past_state_bit;
+    	input inv_bit;
+    	integer j;
+    	reg [31:0] pass;
+    	begin
+  		write_b_state(b_state);
+      		@(posedge clock); 
+      		latch_data_n = 1'b1;
+      		trigger_in_n = 1'b1;
+      		wait_n_clks(20);
+      		spi_shift({2'b0,past_state_bit,inv_bit,4'h8,24'b0},pass);
+      		wait_n_clks(100);
+      		latch_data_n = 0;
+      		wait_n_clks(20);
+      		latch_data_n = 1;
+      		wait_n_clks(20);
+      		trigger_in_n = 1'b0;
+      		wait_n_clks(20);
+      		trigger_in_n = 1'b1;
+      		@(negedge trigger_out_n);
+		check_b_state(b_state);
+      		wait_n_clks(20);
+    	end
+  	endtask
+
 
 	initial begin
 		init_signals();
@@ -394,8 +462,7 @@ module braille_driver_test0_tb;
 		wait_n_clks(50);
 		ccr_set();
 		check_ccr_set();
-  		write_b_state(10'b11_1111_1111);
-		set_trigger_mode_no_wait(1'b0,1'b0);
+  		advance_b_state_and_check(10'b11_1111_1111,1'b0,1'b0);
 		tb_to_core = 1'b1;
 		wait(core_to_tb === 1'b0);
 		tb_to_core = 1'b0;

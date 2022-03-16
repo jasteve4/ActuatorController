@@ -158,29 +158,29 @@ module braille_driver_controller
 	};
 
     assign user_data_oeb = {
-	1'b1,		// 37 	enable_n     	: input
-	1'b1,		// 36 	trigger_in_n 	: input  
-	1'b1,		// 35 	latch_data_n 	: input
-	1'b0,		// 34 	miso 	   	: output
-	1'b1,		// 33 	mosi 	   	: input
-	1'b1,		// 32 	ss_n 	   	: input
-	1'b1,		// 31 	sclk 	   	: input
-	1'b0,		// 30	hbrige_0 	: output
-	1'b0,		// 29	hbrige_0 	: output
-	1'b0,		// 28	hbrige_0 	: output
-	1'b0,		// 27	hbrige_0 	: output
-	1'b0,		// 26	hbrige_0 	: output
-	1'b0,		// 25	hbrige_0 	: output
-	1'b0,		// 24	hbrige_0 	: output
-	1'b0,		// 23	hbrige_0 	: output
-	1'b0,		// 22	hbrige_0 	: output
-	1'b0,		// 21	hbrige_0 	: output
-	1'b0,		// 20	hbrige_0 	: output
-	1'b0,		// 19	hbrige_0 	: output
-	1'b0,		// 18	hbrige_0 	: output
-	1'b0,		// 17	hbrige_0 	: output
-	1'b0,		// 16	hbrige_0 	: output
-	1'b0,		// 15   triger_out_n 	: output				
+	1'b1,			// 37 	enable_n     	: input
+	1'b1,			// 36 	trigger_in_n 	: input  
+	1'b1,			// 35 	latch_data_n 	: input
+	1'b0,			// 34 	miso 	   	: output
+	1'b1,			// 33 	mosi 	   	: input
+	1'b1,			// 32 	ss_n 	   	: input
+	1'b1,			// 31 	sclk 	   	: input
+	1'b0,			// 30	hbrige_0 	: output
+	1'b0,			// 29	hbrige_0 	: output
+	1'b0,			// 28	hbrige_0 	: output
+	1'b0,			// 27	hbrige_0 	: output
+	1'b0,			// 26	hbrige_0 	: output
+	1'b0,			// 25	hbrige_0 	: output
+	1'b0,			// 24	hbrige_0 	: output
+	1'b0,			// 23	hbrige_0 	: output
+	1'b0,			// 22	hbrige_0 	: output
+	1'b0,			// 21	hbrige_0 	: output
+	1'b0,			// 20	hbrige_0 	: output
+	1'b0,			// 19	hbrige_0 	: output
+	1'b0,			// 18	hbrige_0 	: output
+	1'b0,			// 17	hbrige_0 	: output
+	1'b0,			// 16	triger_out_n 	: output
+	1'b1,			// 15   n/a 		: input				
 	~rows_enable[4],	// 14	user_control_enable_6
 	~rows_enable[3],	// 13	user_control_enable_5
 	~rows_enable[2],	// 12	user_control_enable_4
@@ -206,6 +206,10 @@ module braille_driver_controller
 	assign sclk 	    =   io_in_reg[31];	
     
 	top user_design (
+`ifdef USE_POWER_PINS
+	    .vccd1		(vccd1		),	// User area 1 1.8V supply
+	    .vssd1		(vssd1		),	// User area 1 digital ground
+`endif
 	  .clock		(clk		),
 	  .enable_n		(enable_n	), 
 	  .rows			(rows		),
