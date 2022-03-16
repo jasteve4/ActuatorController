@@ -17,7 +17,7 @@
 
 `timescale 1 ns / 1 ps
 
-module braille_driver_test0_tb;
+module actuator_driver_test0_tb;
 	reg clock;
 	reg spi_clock;
     	reg RSTB;
@@ -114,8 +114,8 @@ module braille_driver_test0_tb;
   	endtask
 
 	initial begin
-		$dumpfile("braille_driver_test0.vcd");
-		$dumpvars(0, braille_driver_test0_tb);
+		$dumpfile("actuator_driver_test0.vcd");
+		$dumpvars(0, actuator_driver_test0_tb);
 
 		// Repeat cycles of 1000 clock edges as needed to complete testbench
 		repeat (400) begin
@@ -209,6 +209,8 @@ module braille_driver_test0_tb;
 		begin
 			$display("SPI MEMORY Test Failed");
 			$display("address:%h\tdata:%h",address,tmp);
+			$display("%c[0m",27);
+			$finish;
 		end
 
 	end
@@ -290,6 +292,8 @@ module braille_driver_test0_tb;
 		begin
 			$display("CCR0 Low bit set FAILED");
 			$display("address:%h\tccr0_low:%h",address,tmp);
+			$display("%c[0m",27);
+			$finish;
 		end
 		address = 8'h03;
 		read_data(address,tmp);
@@ -302,6 +306,8 @@ module braille_driver_test0_tb;
 		begin
 			$display("CCR0 High bit set FAILED");
 			$display("address:%h\tccr0_high:%h",address,tmp);
+			$display("%c[0m",27);
+			$finish;
 		end
 		address = 8'h04;
 		read_data(address,tmp);
@@ -314,6 +320,8 @@ module braille_driver_test0_tb;
 		begin
 			$display("CCR1 Low bit set FAILED");
 			$display("address:%h\tccr0_low:%h",address,tmp);
+			$display("%c[0m",27);
+			$finish;
 		end
 		address = 8'h05;
 		read_data(address,tmp);
@@ -326,6 +334,8 @@ module braille_driver_test0_tb;
 		begin
 			$display("CCR1 High bit set FAILED");
 			$display("address:%h\tccr0_high:%h",address,tmp);
+			$display("%c[0m",27);
+			$finish;
 		end
 		address = 8'h06;
 		read_data(address,tmp);
@@ -338,6 +348,8 @@ module braille_driver_test0_tb;
 		begin
 			$display("CCR2 Low bit set FAILED");
 			$display("address:%h\tccr0_low:%h",address,tmp);
+			$display("%c[0m",27);
+			$finish;
 		end
 		address = 8'h07;
 		read_data(address,tmp);
@@ -350,6 +362,8 @@ module braille_driver_test0_tb;
 		begin
 			$display("CCR2 High bit set FAILED");
 			$display("address:%h\tccr0_high:%h",address,tmp);
+			$display("%c[0m",27);
+			$finish;
 		end
 		
 	end
@@ -357,38 +371,27 @@ module braille_driver_test0_tb;
 
   	task check_b_state;
     	input [9:0] b_state;
-	reg [9:0] local_dots;
-	reg [9:0] local_h_dots;
+	reg [9:0] translation_dots ;
     	begin
-		local_dots = dots;
-		local_h_dots = h_dots;
-		if({b_state[9],b_state[7],b_state[8],b_state[3],b_state[7:5],b_state[2:0]} === dots)
+		$display("########## TEST ############");
+		{translation_dots[9],translation_dots[4],translation_dots[8],translation_dots[3],translation_dots[7:5],translation_dots[2:0]} = b_state;
+		if((translation_dots === dots) && (translation_dots === h_dots))
 		begin
 			$display("b_state dot test: PASSED");
 			$display("b_state:\t%b",b_state);
-			$display("trans  :\t%b",{b_state[9],b_state[7],b_state[8],b_state[3],b_state[7:5],b_state[2:0]});
+			$display("trans  :\t%b",translation_dots);
 			$display("dots   :\t%b",dots);
+			$display("h_dots :\t%b",h_dots);
 		end
 		else
 		begin
 			$display("b_state set faild");
 			$display("b_state:\t%b",b_state);
-			$display("trans  :\t%b",{b_state[9],b_state[7],b_state[8],b_state[3],b_state[7:5],b_state[2:0]});
+			$display("trans  :\t%b",translation_dots);
 			$display("dots   :\t%b",dots);
-		end
-		if({b_state[9],b_state[7],b_state[8],b_state[3],b_state[7:5],b_state[2:0]} === h_dots)
-		begin
-			$display("b_state dot test: PASSED");
-			$display("b_state:\t%b",b_state);
-			$display("trans  :\t%b",{b_state[9],b_state[7],b_state[8],b_state[3],b_state[7:5],b_state[2:0]});
-			$display("dots   :\t%b",h_dots);
-		end
-		else
-		begin
-			$display("b_state set faild");
-			$display("b_state:\t%b",b_state);
-			$display("trans  :\t%b",{b_state[9],b_state[7],b_state[8],b_state[3],b_state[7:5],b_state[2:0]});
-			$display("dots   :\t%b",h_dots);
+			$display("h_dots :\t%b",h_dots);
+			$display("%c[0m",27);
+			$finish;
 		end
 	end
 	endtask
@@ -534,7 +537,7 @@ module braille_driver_test0_tb;
 	);
 
 	spiflash #(
-		.FILENAME("braille_driver_test0.hex")
+		.FILENAME("actuator_driver_test0.hex")
 	) spiflash (
 		.csb(flash_csb),
 		.clk(flash_clk),
@@ -555,13 +558,13 @@ module braille_driver_test0_tb;
 	  .ROWS(h_ROWS),
 	  .COLS(h_COLS)
 	);
-	braille_cell h_cell_ic(
+	actuator_cell h_cell_ic(
 	  .cols(h_COLS),
 	  .rows(h_ROWS),
 	  .dots(h_dots)
 	);
 
-	braille_cell cell_ic(
+	actuator_cell cell_ic(
 	  .cols(mprj_io[9:8]),
 	  .rows(mprj_io[14:10]),
 	  .dots(dots)
@@ -625,7 +628,7 @@ module hbrige_cells(
 endmodule
 
 
-module braille_cell(
+module actuator_cell(
   input wire [1:0] cols,
   input wire [4:0] rows,
   output reg [9:0] dots
