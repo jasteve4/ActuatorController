@@ -20,7 +20,7 @@ make verify-actuator_driver_test0-gl # set actuator to all zeros position test
 make verify-actuator_driver_test1-gl # set actuator to count up and done one bit at a time
 make verify-actuator_driver_test1-gl # set actuator to count up and done one bit at a time, invert output test
 ```
- ## GL Simulation
+ ## GL+SDF Simulation
 ```
 make verify-spi_transfer_test-gl-sdf # run spi passthrough
 make verify-memory_test-gl-sdf # run read and write to memory test
