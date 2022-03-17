@@ -60,6 +60,7 @@ module system_controller
   reg [2:0] mem_read_state;
   reg [15:0] memory_data_reg;
   reg [31:0] system_data;
+  wire system_control_n;
 
   
 
