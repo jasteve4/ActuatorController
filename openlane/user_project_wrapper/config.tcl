@@ -55,13 +55,13 @@ set ::env(MACRO_PLACEMENT_CFG) $script_dir/macro.cfg
 ### Black-box verilog and views
 set ::env(VERILOG_FILES_BLACKBOX) "\
 	$::env(CARAVEL_ROOT)/verilog/rtl/defines.v \
-	$script_dir/../../verilog/rtl/braille_driver_controller.v"
+	$script_dir/../../verilog/rtl/actuator_driver_controller.v"
 
 set ::env(EXTRA_LEFS) "\
-	$script_dir/../../lef/braille_driver_controller.lef"
+	$script_dir/../../lef/actuator_driver_controller.lef"
 
 set ::env(EXTRA_GDS_FILES) "\
-	$script_dir/../../gds/braille_driver_controller.gds"
+	$script_dir/../../gds/actuator_driver_controller.gds"
 
 # set ::env(GLB_RT_MAXLAYER) 5
 set ::env(RT_MAX_LAYER) {met4}

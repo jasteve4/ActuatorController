@@ -21,6 +21,7 @@
     // Assume default net type to be wire because GL netlists don't have the wire definitions
     `default_nettype wire
     `include "gl/user_project_wrapper.v"
+    `include "gl/actuator_driver_cotroller.v"
 `else
     `include "user_project_wrapper.v"
     `include "cells_controller.v" 
@@ -29,5 +30,5 @@
     `include "sync_reg.v"
     `include "system_controller.v"
     `include "top.v"
-    `include "braille_driver_cotroller.v"
+    `include "actuator_driver_cotroller.v"
 `endif

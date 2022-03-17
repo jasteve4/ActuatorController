@@ -117,7 +117,7 @@ $(dv-targets-gl): verify-%-gl: $(dv_base_dependencies)
 
 $(dv-targets-gl-sdf): SIM=GL_SDF
 $(dv-targets-gl-sdf): verify-%-gl-sdf: $(dv_base_dependencies)
-	$(docker_run_verify-sdk)
+	$(docker_run_verify-sdf)
 
 clean-targets=$(blocks:%=clean-%)
 .PHONY: $(clean-targets)

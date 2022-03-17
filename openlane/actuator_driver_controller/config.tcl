@@ -18,11 +18,11 @@ set ::env(STD_CELL_LIBRARY) "sky130_fd_sc_hd"
 
 set script_dir [file dirname [file normalize [info script]]]
 
-set ::env(DESIGN_NAME) braille_driver_controller
+set ::env(DESIGN_NAME) actuator_driver_controller
 
 set ::env(VERILOG_FILES) "\
 	$::env(CARAVEL_ROOT)/verilog/rtl/defines.v \
-	$script_dir/../../verilog/rtl/braille_driver_controller.v
+	$script_dir/../../verilog/rtl/actuator_driver_controller.v
 	$script_dir/../../verilog/rtl/top.v
 	$script_dir/../../verilog/rtl/cells_controller.v
 	$script_dir/../../verilog/rtl/memory_controller.v

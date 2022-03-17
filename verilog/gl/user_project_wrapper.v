@@ -54,7 +54,7 @@ module user_project_wrapper (user_clock2,
  input [3:0] wbs_sel_i;
 
 
- braille_driver_controller mprj (.user_clock2(user_clock2),
+ actuator_driver_controller mprj (.user_clock2(user_clock2),
     .vccd1(vccd1),
     .vssd1(vssd1),
     .io_in({io_in[37],
