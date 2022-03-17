@@ -172,7 +172,7 @@ module system_controller
 
   always@(posedge clock)
   begin
-    if(enable_sn | system_control_n)
+    if(enable_sn | ~system_control_n)
     begin
       refresh_count <= 32'b0;
     end

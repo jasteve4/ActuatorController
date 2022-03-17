@@ -48,6 +48,7 @@ module cells_controller
   reg [10:0] cell_pos;
   wire line_enable_n;
   wire [9:0] cell_output_state;
+  wire [9:0] adj_cell_output_state;
   reg [4:0] rows_output;
   reg [1:0] cols_output;
 
@@ -190,20 +191,22 @@ module cells_controller
     end
   endgenerate
 
+
   generate
     for(cell_p=0;cell_p<10;cell_p=cell_p+1)
     begin : past_state_logic
+      assign adj_cell_output_state[cell_p] = cell_invert ? ~cell_output_state[cell_p] : cell_output_state[cell_p];
       always@(posedge clock)
       begin
         case({enable_sn,update_done})
           2'b00: pcell_mem[cell_p] <= pcell_mem[cell_p]; 
-          2'b01: pcell_mem[cell_p] <= cell_output_state[cell_p] ? 2'b11 : 2'b00; 
+          2'b01: pcell_mem[cell_p] <= adj_cell_output_state[cell_p] ? 2'b11 : 2'b00; 
           2'b10: pcell_mem[cell_p] <= 2'b01; 
           2'b11: pcell_mem[cell_p] <= 2'b01; 
         endcase
       end
 
-      assign cells_state_diff[cell_p] = |(pcell_mem[cell_p] ^ {cell_output_state[cell_p],cell_output_state[cell_p]});
+      assign cells_state_diff[cell_p] = |(pcell_mem[cell_p] ^ {adj_cell_output_state[cell_p],adj_cell_output_state[cell_p]});
       assign cell_enable[cell_p] = cells_state_diff[cell_p]  | ~p_select_active;
     end
   endgenerate
