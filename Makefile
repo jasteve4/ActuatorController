@@ -65,8 +65,8 @@ setup: install check-env install_mcw pdk openlane
 # Openlane
 blocks=$(shell cd openlane && find * -maxdepth 0 -type d)
 .PHONY: $(blocks)
-$(blocks):
-	export CARAVEL_ROOT=$(CARAVEL_ROOT) && cd openlane && $(MAKE) $@
+$(blocks): % :
+	export CARAVEL_ROOT=$(CARAVEL_ROOT) && cd openlane && $(MAKE) $*
 
 dv_patterns=$(shell cd verilog/dv && find * -maxdepth 0 -type d)
 dv-targets-rtl=$(dv_patterns:%=verify-%-rtl)
@@ -88,24 +88,18 @@ docker_run_verify=\
 		-e MCW_ROOT=$(MCW_ROOT) \
 		-u $$(id -u $$USER):$$(id -g $$USER) efabless/dv_setup:latest \
 		sh -c $(verify_command)
-docker_run_verify-sdf=\
-	docker run -v ${TARGET_PATH}:${TARGET_PATH} -v ${PDK_ROOT}:${PDK_ROOT} \
-		-v ${CARAVEL_ROOT}:${CARAVEL_ROOT} \
-		-e TARGET_PATH=${TARGET_PATH} -e PDK_ROOT=${PDK_ROOT} \
-		-e CARAVEL_ROOT=${CARAVEL_ROOT} \
-		-e TOOLS=/opt/riscv32i \
-		-e DESIGNS=$(TARGET_PATH) \
-		-e CORE_VERILOG_PATH=$(TARGET_PATH)/mgmt_core_wrapper/verilog \
-		-e GCC_PREFIX=riscv32-unknown-elf \
-		-e MCW_ROOT=$(MCW_ROOT) \
-		-u $$(id -u $$USER):$$(id -g $$USER) efabless/caravel_openlane:2021.11.23_01.42.34 \
-		sh -c $(verify_command)
 
 .PHONY: harden
 harden: $(blocks)
 
-.PHONY: verify
-verify: $(dv-targets)
+.PHONY: verify-all-rtl
+verify-all-rtl: $(dv-targets-rtl)
+
+.PHONY: verify-all-gl
+verify-all-gl: $(dv-targets-gl)
+
+.PHONY: verify-all-gl-sdf
+verify-all-gl-sdf: $(dv-targets-gl-sdf)
 
 $(dv-targets-rtl): SIM=RTL
 $(dv-targets-rtl): verify-%-rtl: $(dv_base_dependencies)
@@ -117,7 +111,7 @@ $(dv-targets-gl): verify-%-gl: $(dv_base_dependencies)
 
 $(dv-targets-gl-sdf): SIM=GL_SDF
 $(dv-targets-gl-sdf): verify-%-gl-sdf: $(dv_base_dependencies)
-	$(docker_run_verify-sdf)
+	$(docker_run_verify)
 
 clean-targets=$(blocks:%=clean-%)
 .PHONY: $(clean-targets)
@@ -210,6 +204,7 @@ check-pdk:
 help:
 	cd $(CARAVEL_ROOT) && $(MAKE) help
 	@$(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$'
+
 
 
 
