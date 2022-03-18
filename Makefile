@@ -92,6 +92,10 @@ docker_run_verify=\
 .PHONY: harden
 harden: $(blocks)
 
+.PHONY: verify
+verify:
+	@echo $@
+
 .PHONY: verify-all-rtl
 verify-all-rtl: $(dv-targets-rtl)
 
