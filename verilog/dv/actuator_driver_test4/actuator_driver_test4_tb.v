@@ -47,6 +47,8 @@ module actuator_driver_test4_tb;
 	reg [9:0] b_set_state;
 	wire trigger_out_n;
 
+	reg [9:0] rand_num [49:0];
+
 	assign mprj_io[37] =	enable_n;     	
 	assign mprj_io[36] =	trigger_in_n; 	  
 	assign mprj_io[35] = 	latch_data_n;	
@@ -71,6 +73,27 @@ module actuator_driver_test4_tb;
 
 
   	assign sclk = ~ss_n & spi_clock;
+	
+	initial begin
+		rand_num[0] = 691;
+		rand_num[1] = 792;
+		rand_num[2] = 856;
+		rand_num[3] = 372;
+		rand_num[4] = 213;
+		rand_num[5] = 122;
+		rand_num[6] = 357;
+		rand_num[7] = 40;
+		rand_num[8] = 554;
+		rand_num[9] = 850;
+		rand_num[10] = 866;
+		rand_num[11] = 259;
+		rand_num[12] = 583;
+		rand_num[13] = 1011;
+		rand_num[14] = 120;
+		rand_num[15] = 34;
+		rand_num[16] = 722;
+		rand_num[17] = 646;
+	end
 
 	initial begin
 		clock 		= 0;
@@ -570,6 +593,10 @@ module actuator_driver_test4_tb;
 	end
 	endtask
 	
+
+
+
+
 	task check_n_updates_rand;
 	input [7:0] n;
     	input past_state_bit;
@@ -583,7 +610,8 @@ module actuator_driver_test4_tb;
 		ran = 10;
 		for(i=0;i<n;i=i+1)
 		begin
-			b_state = $urandom_range(0,1023);
+			//b_state = $random();
+			b_state = rand_num[i];
 			write_b_state(b_state);
 			set_state_to_auto_update(past_state_bit,inv_bit);
 			if(inv_bit)
@@ -695,9 +723,9 @@ module actuator_driver_test4_tb;
 	);
 
 	// Testbench UART
-	tbuart tbuart (
-		.ser_rx(uart_tx)
-	);
+	//tbuart tbuart (
+	//	.ser_rx(uart_tx)
+	//);
 
 	hbrige_cells hbrige_drivers_ic(
 	  .rows(mprj_io[30:21]),

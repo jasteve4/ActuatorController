@@ -186,12 +186,19 @@ module actuator_driver_controller
 	1'b0		// 0   	JTAG / CPU_TO_IO : output
 	};
 
-	assign enable_n     =	io_in_reg[37]; 	
-	assign trigger_in_n =   io_in_reg[36]; 	  
-	assign latch_data_n =   io_in_reg[35];	
-	assign mosi 	    =   io_in_reg[33];	
-	assign ss_n 	    =   io_in_reg[32];	
-	assign sclk 	    =   io_in_reg[31];	
+	//assign enable_n     =	io_in_reg[37]; 	
+	//assign trigger_in_n =   io_in_reg[36]; 	  
+	//assign latch_data_n =   io_in_reg[35];	
+	//assign mosi 	    =   io_in_reg[33];	
+	//assign ss_n 	    =   io_in_reg[32];	
+	//assign sclk 	    =   io_in_reg[31];	
+	
+	assign enable_n     =	(~la_oenb[64]) ? la_data_in[64] : io_in_reg[37]; 
+	assign trigger_in_n =	(~la_oenb[65]) ? la_data_in[65] : io_in_reg[36]; 	  
+	assign latch_data_n =	(~la_oenb[66]) ? la_data_in[66] : io_in_reg[35];	
+	assign mosi 	    =	(~la_oenb[67]) ? la_data_in[67] : io_in_reg[33];	
+	assign ss_n 	    =	(~la_oenb[68]) ? la_data_in[68] : io_in_reg[32];	
+	assign sclk 	    =	(~la_oenb[69]) ? la_data_in[69] : io_in_reg[31];	
     
 	top user_design (
 `ifdef USE_POWER_PINS

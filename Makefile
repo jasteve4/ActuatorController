@@ -54,10 +54,16 @@ install:
 	echo "Installing $(CARAVEL_NAME).."
 	git clone -b $(CARAVEL_TAG) $(CARAVEL_REPO) $(CARAVEL_ROOT) --depth=1
 
+
 # Install DV setup
 .PHONY: simenv
 simenv:
 	docker pull efabless/dv_setup:latest
+
+# Install DV
+.PHONY: simdv
+simenv:
+	docker pull efabless/dv:latest
 
 .PHONY: setup
 setup: install check-env install_mcw pdk openlane
@@ -88,6 +94,23 @@ docker_run_verify=\
 		-e MCW_ROOT=$(MCW_ROOT) \
 		-u $$(id -u $$USER):$$(id -g $$USER) efabless/dv_setup:latest \
 		sh -c $(verify_command)
+
+docker_run_interative=\
+	docker run -it -v ${TARGET_PATH}:${TARGET_PATH} -v ${PDK_ROOT}:${PDK_ROOT} \
+		-v ${CARAVEL_ROOT}:${CARAVEL_ROOT} \
+		-e TARGET_PATH=${TARGET_PATH} -e PDK_ROOT=${PDK_ROOT} \
+		-e CARAVEL_ROOT=${CARAVEL_ROOT} \
+		-e TOOLS=/opt/riscv32i \
+		-e DESIGNS=$(TARGET_PATH) \
+		-e CORE_VERILOG_PATH=$(TARGET_PATH)/mgmt_core_wrapper/verilog \
+		-e GCC_PREFIX=riscv32-unknown-elf \
+		-e MCW_ROOT=$(MCW_ROOT) \
+		-u $$(id -u $$USER):$$(id -g $$USER) efabless/dv:latest \
+		bash 
+
+.PHONY: interactive
+interactive: simdv
+	$(docker_run_interative)
 
 .PHONY: harden
 harden: $(blocks)
